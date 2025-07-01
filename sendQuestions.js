@@ -1,15 +1,15 @@
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
-const cron = require("node-cron");
 
 require("dotenv").config();
+require('colors');
 
 // Configuration
 const QUESTIONS_FILE = path.join(__dirname, "questions.json");
 const AI_API_URL = "https://inference-api.nousresearch.com/v1/chat/completions";
 const AI_API_KEY = process.env.AI_API_KEY;
-const INTERVAL_HOURS = 1; // Interval in hours
+const INTERVAL_TIMES = 15; // Interval in 15 minutes
 
 // Read questions from the JSON file
 let questions = [];
@@ -44,11 +44,11 @@ async function sendQuestion(question) {
         },
       }
     );
-
+    console.log('<================== START OF QUESTION ========================>'.cyan + '\n');
     // Handle the response as needed
-    console.log(`Question: ${question}`);
-    console.log("AI Response:", response.data.choices[0].message.content);
-    console.log('<------------------------------------------------------>');
+    console.log(`Question: ${question}`.magenta.bold);
+    console.log("✅ AI Response:", response.data.choices[0].message.content.green.bold);
+    console.log('<================== END OF QUESTION========================>'.cyan + '\n');
   } catch (error) {
     console.error("Error sending question:", {
       question,
@@ -62,8 +62,7 @@ async function sendQuestion(question) {
 let currentQuestionIndex = 0;
 
 function scheduleQuestions() {
-  // Schedule the task to run every hour
-  cron.schedule(`0 */${INTERVAL_HOURS} * * *`, () => {
+  setInterval(() => {
     if (currentQuestionIndex >= questions.length) {
       console.log("All questions have been sent.");
       // Optionally, reset the index or stop the scheduler
@@ -75,10 +74,13 @@ function scheduleQuestions() {
     const question = questions[currentQuestionIndex];
     sendQuestion(question);
     currentQuestionIndex += 1;
-  });
+  }, 
+  15 * 60 * 1000
+  // 10000
+); // Convert hours to milliseconds
 
   console.log(
-    `Scheduler started. Sending a question every ${INTERVAL_HOURS} hour(s).`
+    `Scheduler started. Sending a question every ${INTERVAL_TIMES} minutes(s)...`.yellow
   );
 }
 
