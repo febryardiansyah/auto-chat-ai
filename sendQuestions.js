@@ -88,5 +88,5 @@ function scheduleQuestions() {
 }
 
 // Start the scheduler
-// scheduleQuestions();
-sendQuestion(questions[0]); // For testing, send the first question immediately
+scheduleQuestions();
+// sendQuestion(questions[0]); // For testing, send the first question immediately
