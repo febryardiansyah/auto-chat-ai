@@ -7,7 +7,7 @@ require('colors');
 
 // Configuration
 const QUESTIONS_FILE = path.join(__dirname, "questions.json");
-const AI_API_URL = "https://inference-api.nousresearch.com/v1/chat/completions";
+const AI_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const AI_API_KEY = process.env.AI_API_KEY;
 const INTERVAL_TIMES = 15; // Interval in 15 minutes
 
@@ -30,7 +30,7 @@ async function sendQuestion(question) {
     const response = await axios.post(
       AI_API_URL,
       {
-        model: "Hermes-3-Llama-3.1-405B",
+        model: "openrouter/auto",
         messages: [
           {
             role: "user",
@@ -41,13 +41,16 @@ async function sendQuestion(question) {
       {
         headers: {
           Authorization: `Bearer ${AI_API_KEY}`,
+          "HTTP-Referer": "https://slm-store.vercel.app/",
+          "X-Title": "SLM Store",
         },
       }
     );
     console.log('<================== START OF QUESTION ========================>'.cyan + '\n');
     // Handle the response as needed
-    console.log(`Question: ${question}`.magenta.bold);
-    console.log("✅ AI Response:", response.data.choices[0].message.content.green.bold);
+    console.log(`Question: `.white.bold, `${question}`.magenta.bold);
+    console.log(`Model used: `.white.bold, `${response.data.model}`.red.bold);
+    console.log("✅ AI Response:".white.bold, response.data.choices[0].message.content.green.bold);
     console.log('<================== END OF QUESTION========================>'.cyan + '\n');
   } catch (error) {
     console.error("Error sending question:", {
@@ -85,5 +88,5 @@ function scheduleQuestions() {
 }
 
 // Start the scheduler
-scheduleQuestions();
-// sendQuestion(questions[0]); // For testing, send the first question immediately
+// scheduleQuestions();
+sendQuestion(questions[0]); // For testing, send the first question immediately
